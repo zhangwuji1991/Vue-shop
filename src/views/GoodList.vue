@@ -9,7 +9,7 @@
         <div class="filter-nav">
           <span class="sortby">Sort by:</span>
           <a href="javascript:void(0)" class="default cur">Default</a>
-          <a href="javascript:void(0)" class="price">Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
+          <a href="javascript:void(0)" class="price" @click="sortGoods">Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
           <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
         </div>
         <div class="accessory-result">
@@ -30,17 +30,20 @@
               <ul>
                 <li v-for="item in goodsList">
                   <div class="pic">
-                    <a href="#"><img v-lazy="'/static/'+item.prodcutImg" alt=""></a>
+                    <a href="#"><img v-lazy="'/static/'+item.productImage" alt=""></a>
                   </div>
                   <div class="main">
                     <div class="name">{{item.productName}}</div>
-                    <div class="price">{{item.prodcutPrice}}</div>
+                    <div class="price">{{item.salePrice}}</div>
                     <div class="btn-area">
                       <a href="javascript:;" class="btn btn--m">加入购物车</a>
                     </div>
                   </div>
                 </li>
               </ul>
+              <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="20">
+                加载中...
+              </div>
             </div>
           </div>
         </div>
@@ -62,6 +65,10 @@
             priceFilter:[
               {
                 startPrice:'0.00',
+                endPrice:'100.00'
+              },
+              {
+                startPrice:'100.00',
                 endPrice:'500.00'
               },
               {
@@ -70,16 +77,16 @@
               },
               {
                 startPrice:'1000.00',
-                endPrice:'1500.00'
-              },
-              {
-                startPrice:'1500.00',
                 endPrice:'2000.00'
               }  
             ],
+            page:1,
+            pageSize:8,
+            srotFlag:true,
             priceChecked:'all',
             filterBy:false,
-            overLayFlag:false
+            overLayFlag:false,
+            busy:true
           }
       },
       components: {
@@ -91,11 +98,40 @@
         this.getGoodsList();
       },
       methods: {
-        getGoodsList (){
-          axios.get("/goods").then((result)=>{
-            var res = result.data;
-            this.goodsList = res.data.result;
+        getGoodsList (flag){
+          var param = {
+            page:this.page,
+            pageSize:this.pageSize,
+            sort:this.srotFlag?1:-1,
+            priceLevel:this.priceChecked
+          }
+          axios.get("/goods",{
+            params:param
+          }).then((result)=>{
+            let res = result.data;
+            if(res.status=="0"){
+              if(flag){
+                this.goodsList = this.goodsList.concat(res.result.list);
+                if(res.result.count == 0){
+                  this.busy = true;
+                }else{
+                  this.busy = false;
+                }
+              }else{
+                this.goodsList = res.result.list;
+                this.busy = false;
+              }
+            }else{
+              this.goodsList = [];
+            }        
           })
+        },
+
+        sortGoods (){
+          this.srotFlag = !this.srotFlag;
+          this.page = 1;
+          this.goodsList = [];
+          this.getGoodsList();
         },
         showFilterPop (){
           this.filterBy = true;
@@ -106,9 +142,22 @@
           this.overLayFlag = false;
         },
         setPriceFilter (index){
+          console.log(index)
+          this.page = 1;
+          this.getGoodsList();
           this.priceChecked = index
           this.closePop()
+        },
+        loadMore (){
+          this.busy = true;
+          setTimeout(() => {
+            this.page++;
+            this.getGoodsList(true);
+          }, 500);
         }
       } 
   }
 </script>
+<style scoped>
+
+</style>

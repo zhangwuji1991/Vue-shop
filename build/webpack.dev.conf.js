@@ -12,9 +12,9 @@ const portfinder = require('portfinder')
 
 const express = require('express')
 const app = express()//请求server
-var appData = require('./../mock/goods.json')//加载本地数据文件
-var apiRoutes = express.Router()
-app.use('/goods', apiRoutes)//通过路由请求数据
+// var appData = require('./../mock/goods.json')//加载本地数据文件
+// var apiRoutes = express.Router()
+// app.use('/goods', apiRoutes)//通过路由请求数据
 
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
@@ -50,15 +50,16 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
       poll: config.dev.poll,
-    },
-    before(app) {
-      app.get('/goods', (req, res) => {
-        res.json({
-          errno: 0,
-          data: appData
-        })//接口返回json数据，上面配置的数据seller就赋值给data请求后调用
-      })
     }
+    // ,
+    // before(app) {
+    //   app.get('/goods', (req, res) => {
+    //     res.json({
+    //       errno: 0,
+    //       data: appData
+    //     })//接口返回json数据，上面配置的数据seller就赋值给data请求后调用
+    //   })
+    // }
   },
   plugins: [
     new webpack.DefinePlugin({
