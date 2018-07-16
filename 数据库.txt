@@ -1,1 +1,1 @@
-mongod --dbpath=F:\vue\vueshop\server\db --port=27016
+mongod --dbpath=G:\vue\Vue-shop\server\db --port=27016

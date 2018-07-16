@@ -8,43 +8,103 @@
         <path class="path4" d="M9.599 25.594c-1.769 0-3.203 1.434-3.203 3.203s1.434 3.203 3.203 3.203c1.769 0 3.203-1.434 3.203-3.203s-1.434-3.203-3.203-3.203zM9.599 30.717c-1.060 0-1.92-0.86-1.92-1.92s0.86-1.92 1.92-1.92c1.060 0 1.92 0.86 1.92 1.92s-0.86 1.92-1.92 1.92z"></path>
         </symbol>
         <div class="navbar">
-        <div class="navbar-left-container">
-            <a href="/">
-            <img class="navbar-brand-logo" src="static/logo.png"></a>
-        </div>
-        <div class="navbar-right-container" style="display: flex;">
-            <div class="navbar-menu-container">
-            <!--<a href="/" class="navbar-link">我的账户</a>-->
-            <span class="navbar-link"></span>
-            <a href="javascript:void(0)" class="navbar-link">Login</a>
-            <a href="javascript:void(0)" class="navbar-link">Logout</a>
-            <div class="navbar-cart-container">
-                <span class="navbar-cart-count"></span>
-                <a class="navbar-link navbar-cart-link" href="/#/cart">
-                <svg class="navbar-cart-logo">
-                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
-                </svg>
-                </a>
+            <div class="navbar-left-container">
+                <a href="/">
+                <img class="navbar-brand-logo" src="static/logo.png"></a>
             </div>
+            <div class="navbar-right-container" style="display: flex;">
+                <div class="navbar-menu-container">
+                    <!--<a href="/" class="navbar-link">我的账户</a>-->
+                    <span class="navbar-link" v-text="nickName" v-if="nickName"></span>
+                    <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">Login</a>
+                    <a href="javascript:void(0)" class="navbar-link" v-if="nickName" @click="logOut" >Logout</a>
+                    <div class="navbar-cart-container">
+                        <span class="navbar-cart-count"></span>
+                        <a class="navbar-link navbar-cart-link" href="/#/cart">
+                        <svg class="navbar-cart-logo">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
+                        </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
+        <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
+            <div class="md-modal-inner">
+                <div class="md-top">
+                    <div class="md-title">Login in</div>
+                    <button class="md-close" @click="loginModalFlag=false">Close</button>
+                </div>
+                <div class="md-content">
+                    <div class="confirm-tips">
+                        <div class="error-wrap">
+                            <span class="error error-show" v-show="errorTip">用户名或者密码错误</span>
+                        </div>
+                        <ul>
+                            <li class="regi_form_input">
+                                <i class="icon IconPeople"></i>
+                                <input type="text" tabindex="1" name="loginname" class="regi_login_input" v-model="userName" placeholder="User Name">
+                            </li>
+                            <li class="regi_form_input noMargin">
+                                <i class="icon IconPwd"></i>
+                                    <input type="text" tabindex="1" name="password" class="regi_login_input" v-model="userPwd" placeholder="User Name">
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="login-wrap">
+                                <a href="javascript:;" class="btn-login" @click="login">登录</a>>
+                    </div>
+                </div>
+            </div>
         </div>
+    <div class="md-overlay" v-if="loginModalFlag" @click="loginModalFlag=false"></div>
     </header>
 </template>      
 <script>
+    import './../assets/css/login.css'
+    import axios from 'axios'
     export default {
-        name: 'hello',
         data () {
             return {
-            num:10,
-            msg: 'Welcome to Your Vue.js App , test it .'
+                userName:'',
+                userPwd:'',
+                errorTip: false,
+                loginModalFlag:false,
+                nickName:''
             }
+        },
+        methods:{
+           login (){
+             if(!this.userName || !this.userPwd){
+                this.errorTip =true;
+                return;
+             } 
+             axios.post("/users/login",{
+                 userName:this.userName,
+                 userPwd:this.userPwd
+             }).then((response)=>{
+                 let res = response.data;
+                 if (res.status="0") {
+                    this.errotTip = false;
+                    this.loginModalFlag = false;
+                    this.nickName = res.result.userName;
+                 }else{
+                    this.errotTip = true;
+                 }
+             })
+           },
+           logOut (){
+             axios.post("users/logout").then((response)=>{
+                let res = response.data;
+                if(res.status="0"){
+                    this.nickName=''
+                }
+             })
+           }
         }
     }
 </script>
-      
-      <!-- Add "scoped" attribute to limit CSS to this component only -->
+   
 <style scoped>
 
 </style>
-      
