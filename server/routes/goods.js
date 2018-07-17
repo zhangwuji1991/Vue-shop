@@ -5,7 +5,7 @@ var Goods = require("../models/goods");
 var User = require("../models/user");
 
 /* GET home page. */
-router.get("/", function(req, res, next) {
+router.get("/list", function(req, res, next) {
   //分页
   let page = parseInt(req.param("page"));
   let pageSize = parseInt(req.param("pageSize"));
